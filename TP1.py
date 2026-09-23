@@ -1,5 +1,7 @@
+
 import sys
 import json
+from pathlib import Path
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -7,15 +9,25 @@ from PySide6.QtWidgets import (
     QTableWidgetItem
 )
 
-json_file = sys.argv[1]
-print(json_file)
+# json_file = sys.argv[0]
+# print(json_file)
 
-try:
-    file = open(json_file)
-    data = json.load(file)
-    print(type(data))
-except:
-    print(f"Could not load data from {json_file}")
+#Find json files
+path = Path(__file__).parent / "data_small.json"
+
+with path.open("r", encoding="utf-8") as fichier:
+    data = json.load(fichier)
+
+print (data)
+
+
+# try:
+#     file = open(json_file)
+#     data = json.load(file)
+#     print(type(data))
+# except:
+#     print(f"Could not load data from {json_file}")
+
 
 #Récupération de mes données
 for i in data:
@@ -51,7 +63,7 @@ for i in range(len(data)):
     tableau.setItem(i, 1, QTableWidgetItem(item["nom"]))
     tableau.setItem(i, 2, QTableWidgetItem(item["categorie"]))
     tableau.setItem(i, 3, QTableWidgetItem(item["format"]))
-    tableau.setItem(i, 4, QTableWidgetItem(item['polygones']))
+    tableau.setItem(i, 4, QTableWidgetItem(str(item['polygones'])))
     tableau.setItem(i, 5, QTableWidgetItem(item["statut"]))
 
 
@@ -59,3 +71,7 @@ window = QMainWindow();
 window.setCentralWidget(tableau)
 window.show()
 sys.exit(app.exec())
+
+#liens utiles
+#https://doc.qt.io/qtforpython-6/tutorials/basictutorial/tablewidget.html
+#https://www.pythontutorial.net/pyqt/pyqt-qtablewidget/
