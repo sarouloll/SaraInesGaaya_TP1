@@ -3,11 +3,15 @@ import sys
 import json
 from pathlib import Path
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QGuiApplication, Qt
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
     QTableWidget,
     QTableWidgetItem,
+    QLineEdit,
+    QWidget,
+    QVBoxLayout,
 )
 
 # json_file = sys.argv[0]
@@ -24,10 +28,16 @@ with path.open("r", encoding="utf-8") as fichier:
 with path_large.open("r", encoding="utf-8") as fichier:
     data_large = json.load(fichier)
 
-print (data_small)
-print (data_large)
 
 
+# def main_window(self):
+#     main_window = QMainWindow()
+#     self.setGeometry(600, 100, 800, 600)
+
+#Question déterminant quel type de tableau sera affiché 
+choice = str(input("What type of data would you like to sort (large or small) ?"))
+
+#region TEST
 # try:
 #     file = open(json_file)
 #     data = json.load(file)
@@ -50,57 +60,61 @@ print (data_large)
 #     for e in i.items():
 #         print(f"        - {e}")
 #     print("\n")
+#endregion
 
-
+##A FAIRE
+#json.decoder.JSONDecodeError
 
 #création d'une interface
 app = QApplication([])
 
+
 #Configuration de l'interface du tableau visuel (SMALL)
-tableau = QTableWidget()
-tableau.setRowCount(len(data_small))
-tableau.setColumnCount(6)
-tableau.setHorizontalHeaderLabels(["id", "nom", "categorie", "format", "polygones", "statut"])
+if choice in ["small", "Small"]:
+    tableau = QTableWidget()
+    tableau.setRowCount(len(data_small))
+    tableau.setColumnCount(6)
+    tableau.setHorizontalHeaderLabels(["id", "nom", "categorie", "format", "polygones", "statut"])
 
 
-#Affichage des données (SMALL)
-# for i in range(len(data_small)):
-#     item = data_small[i]
-#     tableau.setItem(i, 0, QTableWidgetItem(item["id"]))
-#     tableau.setItem(i, 1, QTableWidgetItem(item["nom"]))
-#     tableau.setItem(i, 2, QTableWidgetItem(item["categorie"]))
-#     tableau.setItem(i, 3, QTableWidgetItem(item["format"]))
-#     tableau.setItem(i, 4, QTableWidgetItem(str(item['polygones'])))
-#     tableau.setItem(i, 5, QTableWidgetItem(item["statut"]))
+    #Affichage des données (SMALL)
+    for i in range(len(data_small)):
+        item = data_small[i]
+        tableau.setItem(i, 0, QTableWidgetItem(item["id"]))
+        tableau.setItem(i, 1, QTableWidgetItem(item["nom"]))
+        tableau.setItem(i, 2, QTableWidgetItem(item["categorie"]))
+        tableau.setItem(i, 3, QTableWidgetItem(item["format"]))
+        tableau.setItem(i, 4, QTableWidgetItem(str(item['polygones'])))
+        tableau.setItem(i, 5, QTableWidgetItem(item["statut"]))
+
+    #Tri ordre croissant/décroissant
+    tableau.setSortingEnabled(True)
+
 
 
 #Configuration de l'interface du tableau visuel (LARGE)
-tableau = QTableWidget()
-tableau.setRowCount(len(data_large))
-tableau.setColumnCount(10)
-tableau.setHorizontalHeaderLabels(["id", "nom", "categorie", "format", "polygones", "statut", "auteur", 'date_creation', "prix", "taille_fichier"])
+if choice in ["large", "Large"]:
+    tableau = QTableWidget()
+    tableau.setRowCount(len(data_large))
+    tableau.setColumnCount(10)
+    tableau.setHorizontalHeaderLabels(["id", "nom", "categorie", "format", "polygones", "statut", "auteur", 'date_creation', "prix", "taille_fichier"])
 
-# for index, data_large in enumerate(data_large, start=1):
-#     print(index, data_large)
+    for e in range(len(data_large)):
+        item = data_large[e]
+        tableau.setItem(e, 0, QTableWidgetItem(item["id"]))
+        tableau.setItem(e, 1, QTableWidgetItem(item["nom"]))
+        tableau.setItem(e, 2, QTableWidgetItem(item["categorie"]))
+        tableau.setItem(e, 3, QTableWidgetItem(item["format"]))
+        tableau.setItem(e, 4, QTableWidgetItem(str(item['polygones'])))
+        tableau.setItem(e, 5, QTableWidgetItem(item["statut"]))
+        tableau.setItem(e, 6, QTableWidgetItem(item["auteur"]))
+        tableau.setItem(e, 7, QTableWidgetItem(str(item['date_creation'])))
+        tableau.setItem(e, 8, QTableWidgetItem(str(item["prix"])))
+        tableau.setItem(e, 9, QTableWidgetItem(str(item["taille_fichier"])))
 
-for index in range(len(data_large)):
-    item = data_large[index]
-    tableau.setItem(index, 0, QTableWidgetItem(item["id"]))
-    tableau.setItem(index, 1, QTableWidgetItem(item["nom"]))
-    tableau.setItem(index, 2, QTableWidgetItem(item["categorie"]))
-    tableau.setItem(index, 3, QTableWidgetItem(item["format"]))
-    tableau.setItem(index, 4, QTableWidgetItem(str(item['polygones'])))
-    tableau.setItem(index, 5, QTableWidgetItem(item["statut"]))
-    tableau.setItem(index, 6, QTableWidgetItem(item["auteur"]))
-    tableau.setItem(index, 7, QTableWidgetItem(str(item['date_creation'])))
-    tableau.setItem(index, 8, QTableWidgetItem(str(item["prix"])))
-    tableau.setItem(index, 9, QTableWidgetItem(str(item["taille_fichier"])))
+    #Tri ordre croissant/décroissant
+    tableau.setSortingEnabled(True)
 
-#Tri ordre croissant/décroissant
-#MARCHE PAS AU COMPLET
-tableau.setSortingEnabled(True)
-tableau.sortItems(index, order = Qt.AscendingOrder)
-tableau.sortItems(index, order = Qt.DescendingOrder)
 
 #Search engine
 # [QTableWidgetItem] = QTableWidget.findItems(str, Qt.MatchFlags)
@@ -124,6 +138,15 @@ tableau.sortItems(index, order = Qt.DescendingOrder)
 #             self.table.setCurrentItem(item)
 
 
+####try n2 :(
+
+# searchbar = QLineEdit.textChanged(placeholderText = "Search...")
+# ####searchbar.setPlaceholderText ("Search...")
+# container = QWidget()
+# container_layout = QVBoxLayout()
+# container.addWidget(searchbar)
+
+
 window = QMainWindow();
 window.setCentralWidget(tableau)
 window.show()
@@ -132,3 +155,5 @@ sys.exit(app.exec())
 #liens utiles
 #https://doc.qt.io/qtforpython-6/tutorials/basictutorial/tablewidget.html
 #https://www.pythontutorial.net/pyqt/pyqt-qtablewidget/
+#https://www.pythonguis.com/tutorials/pyside6-widget-search-bar/
+
