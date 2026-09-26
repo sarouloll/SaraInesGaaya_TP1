@@ -3,7 +3,7 @@ import sys
 import json
 from pathlib import Path
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QGuiApplication, Qt
+#from PySide6.QtGui import QGuiApplication, Qt
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QWidget,
     QVBoxLayout,
+    QCompleter
 )
 
 # json_file = sys.argv[0]
@@ -28,11 +29,6 @@ with path.open("r", encoding="utf-8") as fichier:
 with path_large.open("r", encoding="utf-8") as fichier:
     data_large = json.load(fichier)
 
-
-
-# def main_window(self):
-#     main_window = QMainWindow()
-#     self.setGeometry(600, 100, 800, 600)
 
 #Question déterminant quel type de tableau sera affiché 
 choice = str(input("What type of data would you like to sort (large or small) ?"))
@@ -67,6 +63,21 @@ choice = str(input("What type of data would you like to sort (large or small) ?"
 
 #création d'une interface
 app = QApplication([])
+window = QMainWindow();
+window.setWindowTitle("Visualisation données")
+window.resize(1050, 600)
+
+container = QWidget()
+layout = QVBoxLayout(container)
+
+
+#Affichage de la barre de recherche
+searchbar = QLineEdit()
+searchbar.setPlaceholderText("Search...")
+layout.addWidget(searchbar)
+
+
+
 
 
 #Configuration de l'interface du tableau visuel (SMALL)
@@ -93,7 +104,7 @@ if choice in ["small", "Small"]:
 
 
 #Configuration de l'interface du tableau visuel (LARGE)
-if choice in ["large", "Large"]:
+elif choice in ["large", "Large"]:
     tableau = QTableWidget()
     tableau.setRowCount(len(data_large))
     tableau.setColumnCount(10)
@@ -115,42 +126,44 @@ if choice in ["large", "Large"]:
     #Tri ordre croissant/décroissant
     tableau.setSortingEnabled(True)
 
-
-#Search engine
-# [QTableWidgetItem] = QTableWidget.findItems(str, Qt.MatchFlags)
-
-# self.query = QLineEdit()
-# self.query.setPlaceholderText("Search...")
-# self.query.textChanged.connect(self.search)
-
-# def search(self, s):
-#         # clear current selection.
-#         self.table.setCurrentItem(None)
-
-#         if not s:
-#             # Empty string, don't search.
-#             return
-
-#         matching_items = self.table.findItems(s, Qt.MatchContains)
-#         if matching_items:
-#             # we have found something
-#             item = matching_items[0]  # take the first
-#             self.table.setCurrentItem(item)
+else:
+    print("Please choose between Small or Large data")
 
 
-####try n2 :(
+# noms = [(item["nom"]), (item["id"]), (item["categorie"]), (item["format"]), (str(item['polygones'])), (item["statut"]), (item["auteur"]), (str(item['date_creation'])), (str(item["prix"])), (str(item["taille_fichier"]))
+noms = [str(item["nom"])
+    for item in (data_small if choice.lower() == "small" else data_large)]
 
-# searchbar = QLineEdit.textChanged(placeholderText = "Search...")
-# ####searchbar.setPlaceholderText ("Search...")
-# container = QWidget()
-# container_layout = QVBoxLayout()
-# container.addWidget(searchbar)
+completer = QCompleter(searchbar)
+completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+searchbar.setCompleter(completer)    
 
+# def update_display(self, text):
+#     search = text.strip().casefold()
+#     for widget in self.widgets:
+#         if widget.name.casefold().startswith(search):
+#             widget.show()
+#         else:
+#                 widget.hide()
 
-window = QMainWindow();
-window.setCentralWidget(tableau)
+def update_display(text):
+    search = text.strip().casefold()
+
+    for row in range(tableau.rowCount()):
+        item = tableau.item(row, 1)
+
+        if item is not None and search in item.text().casefold():
+            tableau.setRowHidden(row, False)
+        else:
+            tableau.setRowHidden(row, True)
+
+#Met à jour l'affichage quand un charactère est inscrit dans la barre de recherche
+searchbar.textChanged.connect(update_display)
+
+layout.addWidget(tableau)
+window.setCentralWidget(container)
 window.show()
-sys.exit(app.exec())
+sys.exit(app.exec())    
 
 #liens utiles
 #https://doc.qt.io/qtforpython-6/tutorials/basictutorial/tablewidget.html
